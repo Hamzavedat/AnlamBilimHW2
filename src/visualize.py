@@ -8,8 +8,9 @@ from sklearn.preprocessing import StandardScaler
 
 
 RUN_NAME = "hw2_full_seed42"
-FEATURES_PATH = os.path.join("runs", RUN_NAME, "data", "features.csv")
-PLOTS_DIR = os.path.join("runs", RUN_NAME, "plots")
+RUN_DIR = os.path.join("runs", RUN_NAME)
+FEATURES_PATH = os.path.join(RUN_DIR, "tables", "features.csv")
+PLOTS_DIR = os.path.join(RUN_DIR, "plots")
 SEED = 42
 SAMPLES_PER_MODEL = 3
 

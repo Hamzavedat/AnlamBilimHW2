@@ -10,6 +10,7 @@ SCRIPTS = [
     "extract_features.py",
     "predict.py",
     "visualize.py",
+    "interpret_results.py",
 ]
 
 
@@ -17,6 +18,8 @@ def main():
     env = os.environ.copy()
     env["OMP_NUM_THREADS"] = "1"
     env["MKL_NUM_THREADS"] = "1"
+    env["MPLBACKEND"] = "Agg"
+    env["MPLCONFIGDIR"] = str(ROOT_DIR / ".mplcache")
 
     for script in SCRIPTS:
         script_path = ROOT_DIR / "src" / script

@@ -14,8 +14,9 @@ from sklearn.preprocessing import StandardScaler
 
 
 RUN_NAME = "hw2_full_seed42"
-FEATURES_PATH = os.path.join("runs", RUN_NAME, "data", "features.csv")
-RESULTS_DIR = os.path.join("runs", RUN_NAME, "results")
+RUN_DIR = os.path.join("runs", RUN_NAME)
+FEATURES_PATH = os.path.join(RUN_DIR, "tables", "features.csv")
+RESULTS_DIR = os.path.join(RUN_DIR, "results")
 SEED = 42
 TEST_SIZE = 0.2
 

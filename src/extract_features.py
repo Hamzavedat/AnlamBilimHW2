@@ -8,8 +8,9 @@ from tqdm import tqdm
 
 
 RUN_NAME = "hw2_full_seed42"
-DATA_DIR = os.path.join("runs", RUN_NAME, "data")
-FEATURES_PATH = os.path.join(DATA_DIR, "features.csv")
+RUN_DIR = os.path.join("runs", RUN_NAME)
+TABLES_DIR = os.path.join(RUN_DIR, "tables")
+FEATURES_PATH = os.path.join(TABLES_DIR, "features.csv")
 SEED = 42
 PCA_FIT_SAMPLES = 50
 EPS = 1e-10
@@ -160,7 +161,7 @@ def fit_pca_models(metadata):
 
 
 def main():
-    metadata_files = glob(os.path.join(DATA_DIR, "*_metadata.csv"))
+    metadata_files = glob(os.path.join(TABLES_DIR, "*_metadata.csv"))
     if not metadata_files:
         raise FileNotFoundError("Metadata files not found. Run collect_data.py first.")
 
