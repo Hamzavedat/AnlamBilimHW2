@@ -6,12 +6,13 @@ Bu proje, iki dil modelinin metin uretimi sirasinda olusan trajectory'lerini kar
 
 - `src/collect_data.py`
   - `gpt2` ve `EleutherAI/pythia-70m` modellerinden veri toplar.
-  - ELI5 category dataset'inden secilen `10 kategori x 100 soru = 1000 prompt` kullanir.
+  - Elle tanimlanmis `10 kategori x 10 topic x 10 soru sablonu = 1000 benzersiz prompt` kullanir.
   - Her model icin `1000` trajectory uretir.
   - Her trajectory en az `50` token uzunlugundadir.
-  - Sorulari her kategoride `q_id`, sonra `title` sirasina gore dizer ve ilk `100` kaydi alir.
+  - Prompt bank'i deterministik olarak uretir ve `tables/prompt_bank.csv` icine yazar.
   - Token secimini greedy `argmax` ile yaptigi icin uretim deterministiktir.
-  - Orijinal soru metni ve answer alanlarini metadata icinde saklar.
+  - Prompt metni dogrudan modele verilir; ek `Question:` veya `Answer clearly...` sarmalayicisi kullanilmaz.
+  - Metadata icinde hem yalnizca modelin urettigi `generated_text` hem de tam `full_text` saklanir.
 - `src/extract_features.py`
   - trajectory dosyalarindan ozellik cikarir.
 - `src/predict.py`
@@ -36,14 +37,10 @@ python src/run_all.py
 ```
 
 Not:
-- Dataset dosyalari su klasor yapisinda beklenir:
-  - `eli5_category/train.jsonl` veya `eli5_category/train.json.gz`
-  - `eli5_category/valid.jsonl` veya `eli5_category/valid.json.gz`
-  - `eli5_category/valid2.jsonl` veya `eli5_category/valid2.json.gz`
-  - `eli5_category/test.jsonl` veya `eli5_category/test.json.gz`
 - Kullanilan kategoriler:
-  - Biology, Chemistry, Culture, Earth Science, Economics, Mathematics, Other, Physics, Psychology, Technology
-- `Engineering` ve `Repost` dahil edilmedi; cunku bunlar sadece `test` veya `valid2` tarafinda gorunuyor.
+  - History, Physics, Biology, Technology, Economics, Psychology, Mathematics, Culture, Art, Sports
+- Her kategoride 10 topic ve tum kategorilerde ortak 10 soru sablonu vardir.
+- Grouped split tarafinda `prompt_id = topic_id` kullanilir; yani ayni topic'in farkli soru varyasyonlari train ve testte ayni anda bulunmaz.
 - Ilk calistirmada modeller Hugging Face uzerinden indirilebilir.
 - Modeller cache'te varsa offline calistirmak icin `HF_HUB_OFFLINE=1` ayarlanabilir.
 - Bu ortamda build CPU uzerinden calistigi icin uzun surebilir.
@@ -68,6 +65,7 @@ runs/hw2_full_seed42/
 ```
 
 Bu klasor icinde:
+- `tables/prompt_bank.csv`
 - `tables/features.csv`
 - `tables/*_metadata.csv`
 - `trajectories/*.npy`

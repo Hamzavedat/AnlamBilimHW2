@@ -1,5 +1,3 @@
-import json
-import gzip
 import os
 import shutil
 
@@ -15,47 +13,154 @@ MODEL_NOTES = {
     "gpt2": "larger hidden size and classic GPT-2 family baseline",
     "EleutherAI/pythia-70m": "smaller GPT-NeoX style baseline for contrast",
 }
+BASE_SEED = 42
+TEMPERATURE = 0.8
+TOP_P = 0.9
 
-SELECTED_CATEGORY_SPLITS = {
-    "Biology": "train",
-    "Chemistry": "train",
-    "Culture": "valid",
-    "Earth Science": "train",
-    "Economics": "train",
-    "Mathematics": "train",
-    "Other": "train",
-    "Physics": "train",
-    "Psychology": "train",
-    "Technology": "train",
+PROMPT_TEMPLATES = [
+    "Explain the central idea of {topic} in plain language.",
+    "Why is {topic} important in practice?",
+    "What is a common misconception about {topic}, and how would you correct it?",
+    "Compare {topic} with a closely related idea and highlight the key difference.",
+    "Describe one real-world example that helps explain {topic}.",
+    "What usually causes {topic} to happen?",
+    "What are the short-term and long-term effects of {topic}?",
+    "How would you teach {topic} to a complete beginner?",
+    "What trade-offs or limitations are associated with {topic}?",
+    "Why do experts continue to study or debate {topic}?",
+]
+
+CATEGORY_TOPICS = {
+    "History": [
+        "the fall of Constantinople",
+        "the French Revolution",
+        "the Industrial Revolution",
+        "the Silk Road",
+        "the Meiji Restoration",
+        "the decline of the Roman Republic",
+        "Ottoman modernization",
+        "Cold War nuclear deterrence",
+        "the printing press",
+        "decolonization after World War II",
+    ],
+    "Physics": [
+        "entropy",
+        "special relativity",
+        "wave-particle duality",
+        "superconductivity",
+        "black holes",
+        "resonance",
+        "conservation of momentum",
+        "semiconductors",
+        "nuclear fusion",
+        "turbulence",
+    ],
+    "Biology": [
+        "natural selection",
+        "immune memory",
+        "CRISPR gene editing",
+        "photosynthesis",
+        "the human microbiome",
+        "sleep cycles",
+        "protein folding",
+        "vaccines",
+        "cellular respiration",
+        "hormonal regulation",
+    ],
+    "Technology": [
+        "distributed systems",
+        "neural networks",
+        "encryption",
+        "battery storage",
+        "compilers",
+        "internet routing",
+        "cloud computing",
+        "robotics",
+        "database indexing",
+        "recommendation systems",
+    ],
+    "Economics": [
+        "inflation",
+        "comparative advantage",
+        "opportunity cost",
+        "market failure",
+        "game theory",
+        "central banking",
+        "price elasticity",
+        "unemployment",
+        "public goods",
+        "supply chain shocks",
+    ],
+    "Psychology": [
+        "confirmation bias",
+        "working memory",
+        "habit formation",
+        "cognitive dissonance",
+        "social anxiety",
+        "operant conditioning",
+        "inattentional blindness",
+        "attachment styles",
+        "the placebo effect",
+        "decision fatigue",
+    ],
+    "Mathematics": [
+        "prime numbers",
+        "derivatives",
+        "Bayesian inference",
+        "graph theory",
+        "eigenvalues",
+        "limits",
+        "linear programming",
+        "fractals",
+        "modular arithmetic",
+        "probability distributions",
+    ],
+    "Culture": [
+        "folklore transmission",
+        "language change",
+        "ritual symbolism",
+        "pop music trends",
+        "meme culture",
+        "fashion cycles",
+        "food taboos",
+        "oral storytelling",
+        "festival traditions",
+        "translation choices",
+    ],
+    "Art": [
+        "chiaroscuro",
+        "perspective drawing",
+        "montage editing",
+        "impressionism",
+        "minimalism",
+        "street photography",
+        "sculpture casting",
+        "color harmony",
+        "jazz improvisation",
+        "architectural ornament",
+    ],
+    "Sports": [
+        "the offside rule",
+        "interval training",
+        "home-field advantage",
+        "recovery science",
+        "serve strategy in tennis",
+        "pacing in marathons",
+        "team pressing",
+        "the biomechanics of jumping",
+        "talent scouting",
+        "nutrition periodization",
+    ],
 }
 
-SAMPLES_PER_CATEGORY = 100
-NUM_SAMPLES = len(SELECTED_CATEGORY_SPLITS) * SAMPLES_PER_CATEGORY
+FULL_PROMPT_COUNT = len(CATEGORY_TOPICS) * len(PROMPT_TEMPLATES) * 10
+NUM_SAMPLES = 10
 MAX_NEW_TOKENS = 50
 
 RUN_NAME = "hw2_full_seed42"
 RUN_DIR = os.path.join("runs", RUN_NAME)
 TABLES_DIR = os.path.join(RUN_DIR, "tables")
 TRAJECTORIES_DIR = os.path.join(RUN_DIR, "trajectories")
-DATASET_DIR = "eli5_category"
-SPLIT_CANDIDATES = {
-    "train": [
-        os.path.join(DATASET_DIR, "train.jsonl"),
-        os.path.join(DATASET_DIR, "train.json.gz"),
-    ],
-    "valid": [
-        os.path.join(DATASET_DIR, "valid.jsonl"),
-        os.path.join(DATASET_DIR, "valid.json.gz"),
-    ],
-    "valid2": [
-        os.path.join(DATASET_DIR, "valid2.jsonl"),
-        os.path.join(DATASET_DIR, "valid2.json.gz"),
-    ],
-    "test": [
-        os.path.join(DATASET_DIR, "test.jsonl"),
-        os.path.join(DATASET_DIR, "test.json.gz"),
-    ],
-}
 
 
 def get_device():
@@ -72,144 +177,113 @@ def prepare_folders():
     os.makedirs(TABLES_DIR, exist_ok=True)
     os.makedirs(TRAJECTORIES_DIR, exist_ok=True)
 
-
-def resolve_split_path(split_name):
-    for candidate in SPLIT_CANDIDATES[split_name]:
-        if os.path.exists(candidate):
-            return candidate
-    expected = ", ".join(SPLIT_CANDIDATES[split_name])
-    raise FileNotFoundError(f"Dataset split not found for {split_name}. Looked for: {expected}")
-
-
-def load_records(path):
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Dataset split not found: {path}")
-
-    records = []
-    open_fn = gzip.open if path.endswith(".gz") else open
-    with open_fn(path, "rt", encoding="utf-8") as f:
-        first_non_space = ""
-        while not first_non_space:
-            ch = f.read(1)
-            if not ch:
-                break
-            if not ch.isspace():
-                first_non_space = ch
-        f.seek(0)
-
-        if first_non_space == "[":
-            payload = json.load(f)
-            if not isinstance(payload, list):
-                raise ValueError(f"Expected a list in {path}")
-            records.extend(payload)
-        else:
-            for line in f:
-                line = line.strip()
-                if line:
-                    records.append(json.loads(line))
-    return records
-
-
 def normalize_text(value):
     if value is None:
         return ""
     return str(value).strip()
 
 
-def build_prompt(title, selftext):
-    title = normalize_text(title)
-    selftext = normalize_text(selftext)
-    if selftext:
-        return f"Question: {title}\n\nDetails: {selftext}\n\nAnswer clearly and concisely."
-    return f"Question: {title}\n\nAnswer clearly and concisely."
-
-
-def extract_answer_fields(record):
-    answers = record.get("answers") or {}
-    answer_ids = answers.get("a_id") or []
-    answer_texts = answers.get("text") or []
-    answer_scores = answers.get("score") or []
-
-    top_answer_text = ""
-    top_answer_score = None
-    if answer_texts:
-        best_index = 0
-        if answer_scores:
-            best_index = int(np.argmax(answer_scores))
-        if best_index < len(answer_texts):
-            top_answer_text = normalize_text(answer_texts[best_index])
-        if best_index < len(answer_scores):
-            top_answer_score = int(answer_scores[best_index])
-
-    return {
-        "answer_ids_json": json.dumps(answer_ids, ensure_ascii=False),
-        "answer_texts_json": json.dumps(answer_texts, ensure_ascii=False),
-        "answer_scores_json": json.dumps(answer_scores, ensure_ascii=False),
-        "top_answer_text": top_answer_text,
-        "top_answer_score": top_answer_score,
-    }
+def build_prompt(question_text):
+    return normalize_text(question_text)
 
 
 def build_prompt_plan():
-    split_records = {}
-    for split_name in sorted(set(SELECTED_CATEGORY_SPLITS.values())):
-        split_records[split_name] = load_records(resolve_split_path(split_name))
-
-    plan = []
+    full_plan = []
     sample_index = 0
 
-    for category_index, (category, split_name) in enumerate(SELECTED_CATEGORY_SPLITS.items()):
-        category_pool = [
-            record
-            for record in split_records[split_name]
-            if normalize_text(record.get("category")) == category
-        ]
-        if len(category_pool) < SAMPLES_PER_CATEGORY:
-            raise ValueError(
-                f"Category {category} in split {split_name} has only {len(category_pool)} rows."
-            )
+    for category, topics in CATEGORY_TOPICS.items():
+        if len(topics) != 10:
+            raise ValueError(f"Category {category} must have exactly 10 topics.")
 
-        category_pool.sort(
-            key=lambda record: (
-                normalize_text(record.get("q_id")),
-                normalize_text(record.get("title")),
-            )
-        )
-        chosen_records = category_pool[:SAMPLES_PER_CATEGORY]
+        for topic_index, topic in enumerate(topics):
+            topic_slug = f"{category.lower().replace(' ', '_')}_topic_{topic_index:02d}"
 
-        for record in chosen_records:
-            title = normalize_text(record.get("title"))
-            selftext = normalize_text(record.get("selftext"))
-            prompt = build_prompt(title, selftext)
+            for template_index, template in enumerate(PROMPT_TEMPLATES):
+                question_text = template.format(topic=topic)
+                prompt = build_prompt(question_text)
+                question_id = f"{topic_slug}_template_{template_index:02d}"
 
-            plan.append(
-                {
-                    "sample_index": sample_index,
-                    "category": category,
-                    "source_split": split_name,
-                    "template_id": category.lower().replace(" ", "_"),
-                    "prompt_id": normalize_text(record.get("q_id")) or f"{category}_{sample_index}",
-                    "topic_id": normalize_text(record.get("q_id")) or f"{category}_{sample_index}",
-                    "prompt": prompt,
-                    "generation_mode": "greedy_argmax",
-                    "q_id": normalize_text(record.get("q_id")),
-                    "title": title,
-                    "selftext": selftext,
-                    "subreddit": normalize_text(record.get("subreddit")),
-                    **extract_answer_fields(record),
-                }
-            )
-            sample_index += 1
+                full_plan.append(
+                    {
+                        "sample_index": sample_index,
+                        "category": category,
+                        "source_split": "synthetic",
+                        "template_id": f"template_{template_index:02d}",
+                        "prompt_id": topic_slug,
+                        "topic_id": topic_slug,
+                        "prompt_uid": question_id,
+                        "prompt": prompt,
+                        "generation_mode": "greedy_argmax",
+                        "q_id": question_id,
+                        "title": question_text,
+                        "selftext": "",
+                        "subreddit": "",
+                        "answer_ids_json": "[]",
+                        "answer_texts_json": "[]",
+                        "answer_scores_json": "[]",
+                        "top_answer_text": "",
+                        "top_answer_score": None,
+                    }
+                )
+                sample_index += 1
 
-    plan.sort(key=lambda row: row["sample_index"])
+    full_plan.sort(key=lambda row: row["sample_index"])
+    if len(full_plan) != FULL_PROMPT_COUNT:
+        raise ValueError(f"Expected {FULL_PROMPT_COUNT} prompts, got {len(full_plan)}.")
+
+    if NUM_SAMPLES > len(full_plan):
+        raise ValueError(f"NUM_SAMPLES={NUM_SAMPLES} exceeds full prompt bank size.")
+
+    if NUM_SAMPLES == len(full_plan):
+        plan = full_plan
+    elif NUM_SAMPLES % len(CATEGORY_TOPICS) == 0:
+        per_category = NUM_SAMPLES // len(CATEGORY_TOPICS)
+        plan = []
+        for category in CATEGORY_TOPICS:
+            category_rows = [row for row in full_plan if row["category"] == category]
+            plan.extend(category_rows[:per_category])
+    else:
+        plan = full_plan[:NUM_SAMPLES]
+
+    prompt_uid_count = len({row["prompt_uid"] for row in plan})
+    prompt_text_count = len({row["prompt"] for row in plan})
+    if prompt_uid_count != len(plan) or prompt_text_count != len(plan):
+        raise ValueError("Prompt bank is not fully unique.")
     return plan
 
 
+def save_prompt_bank(plan):
+    prompt_bank = pd.DataFrame(plan)
+    prompt_bank_path = os.path.join(TABLES_DIR, "prompt_bank.csv")
+    prompt_bank.to_csv(prompt_bank_path, index=False)
+    print(f"Saved {prompt_bank_path}")
+
+
+def seed_everything(seed):
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
 def sample_next_token(logits):
-    return torch.argmax(logits, dim=-1, keepdim=True)
+    scaled_logits = logits / TEMPERATURE
+    probs = torch.softmax(scaled_logits, dim=-1)
+    sorted_probs, sorted_indices = torch.sort(probs, descending=True)
+    cumulative_probs = torch.cumsum(sorted_probs, dim=-1)
+
+    sorted_mask = cumulative_probs > TOP_P
+    sorted_mask[..., 1:] = sorted_mask[..., :-1].clone()
+    sorted_mask[..., 0] = False
+
+    filtered_probs = sorted_probs.masked_fill(sorted_mask, 0.0)
+    filtered_probs = filtered_probs / filtered_probs.sum(dim=-1, keepdim=True)
+    sampled_positions = torch.multinomial(filtered_probs, num_samples=1)
+    return sorted_indices.gather(-1, sampled_positions)
 
 
-def generate_one(model, tokenizer, prompt, device):
+def generate_one(model, tokenizer, prompt, device, seed):
+    seed_everything(seed)
     encoded = tokenizer(prompt, return_tensors="pt")
     input_ids = encoded["input_ids"].to(device)
     attention_mask = encoded.get("attention_mask")
@@ -247,19 +321,23 @@ def generate_one(model, tokenizer, prompt, device):
         )
         trajectory.append(final_vector)
 
+    prompt_token_count = int(input_ids.shape[1])
     full_ids = current_ids[0].detach().cpu().numpy()
-    generated_text = tokenizer.decode(full_ids, skip_special_tokens=True)
+    completion_ids = full_ids[prompt_token_count:]
+    full_text = tokenizer.decode(full_ids, skip_special_tokens=True)
+    generated_text = tokenizer.decode(completion_ids, skip_special_tokens=True).strip()
     trajectory = np.asarray(trajectory, dtype=np.float32)
 
-    return generated_text, trajectory
+    return generated_text, full_text, trajectory
 
 
 def check_reproducibility(model, tokenizer, plan, device):
     print("Checking reproducibility on first 2 samples...")
     for sample in plan[:2]:
-        text_a, traj_a = generate_one(model, tokenizer, sample["prompt"], device)
-        text_b, traj_b = generate_one(model, tokenizer, sample["prompt"], device)
-        if text_a != text_b or not np.array_equal(traj_a, traj_b):
+        seed = BASE_SEED + sample["sample_index"]
+        text_a, full_a, traj_a = generate_one(model, tokenizer, sample["prompt"], device, seed)
+        text_b, full_b, traj_b = generate_one(model, tokenizer, sample["prompt"], device, seed)
+        if text_a != text_b or full_a != full_b or not np.array_equal(traj_a, traj_b):
             raise RuntimeError("Reproducibility check failed.")
     print("Reproducibility check passed.")
 
@@ -281,11 +359,13 @@ def collect_for_model(model_name, plan, device):
     safe_name = model_name.replace("/", "_")
 
     for sample in tqdm(plan, desc=model_name):
-        generated_text, trajectory = generate_one(
+        seed = BASE_SEED + sample["sample_index"]
+        generated_text, full_text, trajectory = generate_one(
             model,
             tokenizer,
             sample["prompt"],
             device,
+            seed,
         )
 
         traj_id = f"{safe_name}_{sample['sample_index']:05d}"
@@ -299,13 +379,15 @@ def collect_for_model(model_name, plan, device):
                 "model_name": model_name,
                 "model_note": MODEL_NOTES[model_name],
                 "sample_index": sample["sample_index"],
+                "seed_used": seed,
                 "prompt": sample["prompt"],
                 "category": sample["category"],
                 "source_split": sample["source_split"],
                 "template_id": sample["template_id"],
                 "prompt_id": sample["prompt_id"],
                 "topic_id": sample["topic_id"],
-                "generation_mode": sample["generation_mode"],
+                "prompt_uid": sample["prompt_uid"],
+                "generation_mode": "top_p_sampling",
                 "q_id": sample["q_id"],
                 "title": sample["title"],
                 "selftext": sample["selftext"],
@@ -316,6 +398,7 @@ def collect_for_model(model_name, plan, device):
                 "top_answer_text": sample["top_answer_text"],
                 "top_answer_score": sample["top_answer_score"],
                 "generated_text": generated_text,
+                "full_text": full_text,
                 "num_tokens": int(trajectory.shape[0]),
                 "trajectory_path": traj_path,
             }
@@ -332,6 +415,7 @@ def main():
         torch.set_num_interop_threads(1)
     prepare_folders()
     plan = build_prompt_plan()
+    save_prompt_bank(plan)
     device = get_device()
 
     print(f"Device: {device}")
