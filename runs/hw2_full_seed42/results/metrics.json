@@ -1,0 +1,989 @@
+{
+  "run": {
+    "timestamp": "2026-04-28T00:20:16.138455",
+    "seed": 42,
+    "test_size": 0.2,
+    "features_path": "C:\\Users\\hamza\\OneDrive\\Desktop\\anlam bilim\\hw2\\AnlamBilimHW2\\runs\\hw2_full_seed42\\tables\\features.csv",
+    "num_rows": 2000
+  },
+  "feature_sets": {
+    "human_raw_geometry": {
+      "source": "human",
+      "num_features": 9,
+      "columns": [
+        "raw_geo_dist_mean",
+        "raw_geo_dist_std",
+        "raw_geo_dist_max",
+        "raw_geo_dist_min",
+        "raw_geo_cos_sim_mean",
+        "raw_geo_cos_sim_std",
+        "raw_geo_start_end_dist",
+        "raw_geo_path_length",
+        "raw_geo_linearity"
+      ]
+    },
+    "human_normalized_geometry": {
+      "source": "human",
+      "num_features": 16,
+      "columns": [
+        "norm_geo_dist_mean",
+        "norm_geo_dist_std",
+        "norm_geo_dist_max",
+        "norm_geo_dist_min",
+        "norm_geo_cos_sim_mean",
+        "norm_geo_cos_sim_std",
+        "norm_geo_start_end_dist",
+        "norm_geo_path_length",
+        "norm_geo_linearity",
+        "si_step_cv",
+        "si_step_max_over_mean",
+        "si_step_min_over_mean",
+        "si_turn_mean",
+        "si_turn_std",
+        "si_turn_abs_mean",
+        "si_linearity"
+      ]
+    },
+    "ai_pca_projection": {
+      "source": "ai_assisted",
+      "num_features": 3,
+      "columns": [
+        "within_model_pca_area",
+        "within_model_pca_spread",
+        "within_model_pca_linearity"
+      ]
+    },
+    "ai_combined_geometry": {
+      "source": "ai_assisted",
+      "num_features": 19,
+      "columns": [
+        "norm_geo_dist_mean",
+        "norm_geo_dist_std",
+        "norm_geo_dist_max",
+        "norm_geo_dist_min",
+        "norm_geo_cos_sim_mean",
+        "norm_geo_cos_sim_std",
+        "norm_geo_start_end_dist",
+        "norm_geo_path_length",
+        "norm_geo_linearity",
+        "si_step_cv",
+        "si_step_max_over_mean",
+        "si_step_min_over_mean",
+        "si_turn_mean",
+        "si_turn_std",
+        "si_turn_abs_mean",
+        "si_linearity",
+        "within_model_pca_area",
+        "within_model_pca_spread",
+        "within_model_pca_linearity"
+      ]
+    }
+  },
+  "task_model_identity": {
+    "split": "stratified train_test_split",
+    "results": {
+      "human_raw_geometry": {
+        "random_forest": {
+          "accuracy": 1.0,
+          "macro_f1": 1.0,
+          "classification_report": {
+            "EleutherAI/pythia-70m": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 200.0
+            },
+            "gpt2": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 200.0
+            },
+            "accuracy": 1.0,
+            "macro avg": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 400.0
+            }
+          }
+        },
+        "logistic_regression": {
+          "accuracy": 1.0,
+          "macro_f1": 1.0,
+          "classification_report": {
+            "EleutherAI/pythia-70m": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 200.0
+            },
+            "gpt2": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 200.0
+            },
+            "accuracy": 1.0,
+            "macro avg": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 400.0
+            }
+          }
+        }
+      },
+      "human_normalized_geometry": {
+        "random_forest": {
+          "accuracy": 1.0,
+          "macro_f1": 1.0,
+          "classification_report": {
+            "EleutherAI/pythia-70m": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 200.0
+            },
+            "gpt2": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 200.0
+            },
+            "accuracy": 1.0,
+            "macro avg": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 400.0
+            }
+          }
+        },
+        "logistic_regression": {
+          "accuracy": 1.0,
+          "macro_f1": 1.0,
+          "classification_report": {
+            "EleutherAI/pythia-70m": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 200.0
+            },
+            "gpt2": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 200.0
+            },
+            "accuracy": 1.0,
+            "macro avg": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 400.0
+            }
+          }
+        }
+      },
+      "ai_pca_projection": {
+        "random_forest": {
+          "accuracy": 0.9975,
+          "macro_f1": 0.9974999843749024,
+          "classification_report": {
+            "EleutherAI/pythia-70m": {
+              "precision": 0.9950248756218906,
+              "recall": 1.0,
+              "f1-score": 0.9975062344139651,
+              "support": 200.0
+            },
+            "gpt2": {
+              "precision": 1.0,
+              "recall": 0.995,
+              "f1-score": 0.9974937343358395,
+              "support": 200.0
+            },
+            "accuracy": 0.9975,
+            "macro avg": {
+              "precision": 0.9975124378109452,
+              "recall": 0.9975,
+              "f1-score": 0.9974999843749024,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 0.9975124378109453,
+              "recall": 0.9975,
+              "f1-score": 0.9974999843749024,
+              "support": 400.0
+            }
+          }
+        },
+        "logistic_regression": {
+          "accuracy": 0.9975,
+          "macro_f1": 0.9974999843749024,
+          "classification_report": {
+            "EleutherAI/pythia-70m": {
+              "precision": 0.9950248756218906,
+              "recall": 1.0,
+              "f1-score": 0.9975062344139651,
+              "support": 200.0
+            },
+            "gpt2": {
+              "precision": 1.0,
+              "recall": 0.995,
+              "f1-score": 0.9974937343358395,
+              "support": 200.0
+            },
+            "accuracy": 0.9975,
+            "macro avg": {
+              "precision": 0.9975124378109452,
+              "recall": 0.9975,
+              "f1-score": 0.9974999843749024,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 0.9975124378109453,
+              "recall": 0.9975,
+              "f1-score": 0.9974999843749024,
+              "support": 400.0
+            }
+          }
+        }
+      },
+      "ai_combined_geometry": {
+        "random_forest": {
+          "accuracy": 0.9975,
+          "macro_f1": 0.9974999843749024,
+          "classification_report": {
+            "EleutherAI/pythia-70m": {
+              "precision": 0.9950248756218906,
+              "recall": 1.0,
+              "f1-score": 0.9975062344139651,
+              "support": 200.0
+            },
+            "gpt2": {
+              "precision": 1.0,
+              "recall": 0.995,
+              "f1-score": 0.9974937343358395,
+              "support": 200.0
+            },
+            "accuracy": 0.9975,
+            "macro avg": {
+              "precision": 0.9975124378109452,
+              "recall": 0.9975,
+              "f1-score": 0.9974999843749024,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 0.9975124378109453,
+              "recall": 0.9975,
+              "f1-score": 0.9974999843749024,
+              "support": 400.0
+            }
+          }
+        },
+        "logistic_regression": {
+          "accuracy": 1.0,
+          "macro_f1": 1.0,
+          "classification_report": {
+            "EleutherAI/pythia-70m": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 200.0
+            },
+            "gpt2": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 200.0
+            },
+            "accuracy": 1.0,
+            "macro avg": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1-score": 1.0,
+              "support": 400.0
+            }
+          }
+        }
+      }
+    }
+  },
+  "task_category_prediction_grouped": {
+    "split": "GroupShuffleSplit by prompt_id",
+    "coverage_satisfied": true,
+    "results": {
+      "human_raw_geometry": {
+        "random_forest": {
+          "accuracy": 0.085,
+          "macro_f1": 0.0844370629368494,
+          "classification_report": {
+            "Art": {
+              "precision": 0.14285714285714285,
+              "recall": 0.1,
+              "f1-score": 0.11764705882352941,
+              "support": 40.0
+            },
+            "Biology": {
+              "precision": 0.13333333333333333,
+              "recall": 0.025,
+              "f1-score": 0.042105263157894736,
+              "support": 80.0
+            },
+            "Culture": {
+              "precision": 0.06896551724137931,
+              "recall": 0.05,
+              "f1-score": 0.057971014492753624,
+              "support": 40.0
+            },
+            "Economics": {
+              "precision": 0.1111111111111111,
+              "recall": 0.3,
+              "f1-score": 0.16216216216216217,
+              "support": 20.0
+            },
+            "History": {
+              "precision": 0.19047619047619047,
+              "recall": 0.06666666666666667,
+              "f1-score": 0.09876543209876543,
+              "support": 60.0
+            },
+            "Mathematics": {
+              "precision": 0.03636363636363636,
+              "recall": 0.1,
+              "f1-score": 0.05333333333333334,
+              "support": 20.0
+            },
+            "Physics": {
+              "precision": 0.05357142857142857,
+              "recall": 0.15,
+              "f1-score": 0.07894736842105263,
+              "support": 20.0
+            },
+            "Psychology": {
+              "precision": 0.023809523809523808,
+              "recall": 0.025,
+              "f1-score": 0.024390243902439025,
+              "support": 40.0
+            },
+            "Sports": {
+              "precision": 0.03389830508474576,
+              "recall": 0.1,
+              "f1-score": 0.05063291139240506,
+              "support": 20.0
+            },
+            "Technology": {
+              "precision": 0.1951219512195122,
+              "recall": 0.13333333333333333,
+              "f1-score": 0.15841584158415842,
+              "support": 60.0
+            },
+            "accuracy": 0.085,
+            "macro avg": {
+              "precision": 0.09895081400680039,
+              "recall": 0.10500000000000001,
+              "f1-score": 0.0844370629368494,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 0.11981683036837275,
+              "recall": 0.085,
+              "f1-score": 0.08425286417133739,
+              "support": 400.0
+            }
+          }
+        },
+        "logistic_regression": {
+          "accuracy": 0.065,
+          "macro_f1": 0.061117383159964955,
+          "classification_report": {
+            "Art": {
+              "precision": 0.15384615384615385,
+              "recall": 0.1,
+              "f1-score": 0.12121212121212122,
+              "support": 40.0
+            },
+            "Biology": {
+              "precision": 0.25,
+              "recall": 0.0125,
+              "f1-score": 0.023809523809523808,
+              "support": 80.0
+            },
+            "Culture": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 40.0
+            },
+            "Economics": {
+              "precision": 0.025974025974025976,
+              "recall": 0.1,
+              "f1-score": 0.041237113402061855,
+              "support": 20.0
+            },
+            "History": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 60.0
+            },
+            "Mathematics": {
+              "precision": 0.04411764705882353,
+              "recall": 0.15,
+              "f1-score": 0.06818181818181818,
+              "support": 20.0
+            },
+            "Physics": {
+              "precision": 0.047619047619047616,
+              "recall": 0.25,
+              "f1-score": 0.08,
+              "support": 20.0
+            },
+            "Psychology": {
+              "precision": 0.09615384615384616,
+              "recall": 0.125,
+              "f1-score": 0.10869565217391304,
+              "support": 40.0
+            },
+            "Sports": {
+              "precision": 0.05555555555555555,
+              "recall": 0.15,
+              "f1-score": 0.08108108108108109,
+              "support": 20.0
+            },
+            "Technology": {
+              "precision": 0.3333333333333333,
+              "recall": 0.05,
+              "f1-score": 0.08695652173913043,
+              "support": 60.0
+            },
+            "accuracy": 0.065,
+            "macro avg": {
+              "precision": 0.10065996095407861,
+              "recall": 0.09375000000000001,
+              "f1-score": 0.061117383159964955,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 0.13366331381037264,
+              "recall": 0.065,
+              "f1-score": 0.05432116099462581,
+              "support": 400.0
+            }
+          }
+        }
+      },
+      "human_normalized_geometry": {
+        "random_forest": {
+          "accuracy": 0.06,
+          "macro_f1": 0.06086000544705934,
+          "classification_report": {
+            "Art": {
+              "precision": 0.02702702702702703,
+              "recall": 0.025,
+              "f1-score": 0.025974025974025976,
+              "support": 40.0
+            },
+            "Biology": {
+              "precision": 0.2,
+              "recall": 0.0375,
+              "f1-score": 0.06315789473684211,
+              "support": 80.0
+            },
+            "Culture": {
+              "precision": 0.029411764705882353,
+              "recall": 0.025,
+              "f1-score": 0.02702702702702703,
+              "support": 40.0
+            },
+            "Economics": {
+              "precision": 0.1111111111111111,
+              "recall": 0.3,
+              "f1-score": 0.16216216216216217,
+              "support": 20.0
+            },
+            "History": {
+              "precision": 0.16666666666666666,
+              "recall": 0.05,
+              "f1-score": 0.07692307692307693,
+              "support": 60.0
+            },
+            "Mathematics": {
+              "precision": 0.03278688524590164,
+              "recall": 0.1,
+              "f1-score": 0.04938271604938271,
+              "support": 20.0
+            },
+            "Physics": {
+              "precision": 0.05660377358490566,
+              "recall": 0.15,
+              "f1-score": 0.0821917808219178,
+              "support": 20.0
+            },
+            "Psychology": {
+              "precision": 0.022222222222222223,
+              "recall": 0.025,
+              "f1-score": 0.023529411764705882,
+              "support": 40.0
+            },
+            "Sports": {
+              "precision": 0.03389830508474576,
+              "recall": 0.1,
+              "f1-score": 0.05063291139240506,
+              "support": 20.0
+            },
+            "Technology": {
+              "precision": 0.08333333333333333,
+              "recall": 0.03333333333333333,
+              "f1-score": 0.047619047619047616,
+              "support": 60.0
+            },
+            "accuracy": 0.06,
+            "macro avg": {
+              "precision": 0.0763061088981796,
+              "recall": 0.08458333333333333,
+              "f1-score": 0.06086000544705934,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 0.09708610514684639,
+              "recall": 0.06,
+              "f1-score": 0.05618442262655639,
+              "support": 400.0
+            }
+          }
+        },
+        "logistic_regression": {
+          "accuracy": 0.0625,
+          "macro_f1": 0.058920234909969095,
+          "classification_report": {
+            "Art": {
+              "precision": 0.16,
+              "recall": 0.1,
+              "f1-score": 0.12307692307692308,
+              "support": 40.0
+            },
+            "Biology": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 80.0
+            },
+            "Culture": {
+              "precision": 0.05,
+              "recall": 0.025,
+              "f1-score": 0.03333333333333333,
+              "support": 40.0
+            },
+            "Economics": {
+              "precision": 0.06666666666666667,
+              "recall": 0.15,
+              "f1-score": 0.09230769230769231,
+              "support": 20.0
+            },
+            "History": {
+              "precision": 0.5,
+              "recall": 0.016666666666666666,
+              "f1-score": 0.03225806451612903,
+              "support": 60.0
+            },
+            "Mathematics": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 20.0
+            },
+            "Physics": {
+              "precision": 0.048,
+              "recall": 0.3,
+              "f1-score": 0.08275862068965517,
+              "support": 20.0
+            },
+            "Psychology": {
+              "precision": 0.12244897959183673,
+              "recall": 0.15,
+              "f1-score": 0.1348314606741573,
+              "support": 40.0
+            },
+            "Sports": {
+              "precision": 0.038461538461538464,
+              "recall": 0.15,
+              "f1-score": 0.061224489795918366,
+              "support": 20.0
+            },
+            "Technology": {
+              "precision": 0.125,
+              "recall": 0.016666666666666666,
+              "f1-score": 0.029411764705882353,
+              "support": 60.0
+            },
+            "accuracy": 0.0625,
+            "macro avg": {
+              "precision": 0.11105771847200416,
+              "recall": 0.09083333333333335,
+              "f1-score": 0.058920234909969095,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 0.13465130821559393,
+              "recall": 0.0625,
+              "f1-score": 0.05018918623140637,
+              "support": 400.0
+            }
+          }
+        }
+      },
+      "ai_pca_projection": {
+        "random_forest": {
+          "accuracy": 0.09,
+          "macro_f1": 0.08449535090500934,
+          "classification_report": {
+            "Art": {
+              "precision": 0.05454545454545454,
+              "recall": 0.075,
+              "f1-score": 0.06315789473684211,
+              "support": 40.0
+            },
+            "Biology": {
+              "precision": 0.2,
+              "recall": 0.05,
+              "f1-score": 0.08,
+              "support": 80.0
+            },
+            "Culture": {
+              "precision": 0.16129032258064516,
+              "recall": 0.125,
+              "f1-score": 0.14084507042253522,
+              "support": 40.0
+            },
+            "Economics": {
+              "precision": 0.034482758620689655,
+              "recall": 0.1,
+              "f1-score": 0.05128205128205128,
+              "support": 20.0
+            },
+            "History": {
+              "precision": 0.13636363636363635,
+              "recall": 0.1,
+              "f1-score": 0.11538461538461539,
+              "support": 60.0
+            },
+            "Mathematics": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 20.0
+            },
+            "Physics": {
+              "precision": 0.02564102564102564,
+              "recall": 0.05,
+              "f1-score": 0.03389830508474576,
+              "support": 20.0
+            },
+            "Psychology": {
+              "precision": 0.125,
+              "recall": 0.125,
+              "f1-score": 0.125,
+              "support": 40.0
+            },
+            "Sports": {
+              "precision": 0.06382978723404255,
+              "recall": 0.15,
+              "f1-score": 0.08955223880597014,
+              "support": 20.0
+            },
+            "Technology": {
+              "precision": 0.19444444444444445,
+              "recall": 0.11666666666666667,
+              "f1-score": 0.14583333333333334,
+              "support": 60.0
+            },
+            "accuracy": 0.09,
+            "macro avg": {
+              "precision": 0.09955974294299383,
+              "recall": 0.08916666666666667,
+              "f1-score": 0.08449535090500934,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 0.12990246840860997,
+              "recall": 0.09,
+              "f1-score": 0.09681961858226838,
+              "support": 400.0
+            }
+          }
+        },
+        "logistic_regression": {
+          "accuracy": 0.0575,
+          "macro_f1": 0.03667985256851685,
+          "classification_report": {
+            "Art": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 40.0
+            },
+            "Biology": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 80.0
+            },
+            "Culture": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 40.0
+            },
+            "Economics": {
+              "precision": 0.075,
+              "recall": 0.45,
+              "f1-score": 0.12857142857142856,
+              "support": 20.0
+            },
+            "History": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 60.0
+            },
+            "Mathematics": {
+              "precision": 0.033707865168539325,
+              "recall": 0.15,
+              "f1-score": 0.05504587155963303,
+              "support": 20.0
+            },
+            "Physics": {
+              "precision": 0.0661764705882353,
+              "recall": 0.45,
+              "f1-score": 0.11538461538461539,
+              "support": 20.0
+            },
+            "Psychology": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 40.0
+            },
+            "Sports": {
+              "precision": 0.05128205128205128,
+              "recall": 0.1,
+              "f1-score": 0.06779661016949153,
+              "support": 20.0
+            },
+            "Technology": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 60.0
+            },
+            "accuracy": 0.0575,
+            "macro avg": {
+              "precision": 0.022616638703882593,
+              "recall": 0.11500000000000002,
+              "f1-score": 0.03667985256851685,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 0.011308319351941295,
+              "recall": 0.0575,
+              "f1-score": 0.018339926284258425,
+              "support": 400.0
+            }
+          }
+        }
+      },
+      "ai_combined_geometry": {
+        "random_forest": {
+          "accuracy": 0.0975,
+          "macro_f1": 0.09747237233559974,
+          "classification_report": {
+            "Art": {
+              "precision": 0.10526315789473684,
+              "recall": 0.1,
+              "f1-score": 0.10256410256410256,
+              "support": 40.0
+            },
+            "Biology": {
+              "precision": 0.2777777777777778,
+              "recall": 0.0625,
+              "f1-score": 0.10204081632653061,
+              "support": 80.0
+            },
+            "Culture": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 40.0
+            },
+            "Economics": {
+              "precision": 0.14893617021276595,
+              "recall": 0.35,
+              "f1-score": 0.208955223880597,
+              "support": 20.0
+            },
+            "History": {
+              "precision": 0.22727272727272727,
+              "recall": 0.08333333333333333,
+              "f1-score": 0.12195121951219512,
+              "support": 60.0
+            },
+            "Mathematics": {
+              "precision": 0.03225806451612903,
+              "recall": 0.1,
+              "f1-score": 0.04878048780487805,
+              "support": 20.0
+            },
+            "Physics": {
+              "precision": 0.08620689655172414,
+              "recall": 0.25,
+              "f1-score": 0.1282051282051282,
+              "support": 20.0
+            },
+            "Psychology": {
+              "precision": 0.08,
+              "recall": 0.1,
+              "f1-score": 0.08888888888888889,
+              "support": 40.0
+            },
+            "Sports": {
+              "precision": 0.0425531914893617,
+              "recall": 0.1,
+              "f1-score": 0.05970149253731343,
+              "support": 20.0
+            },
+            "Technology": {
+              "precision": 0.17857142857142858,
+              "recall": 0.08333333333333333,
+              "f1-score": 0.11363636363636363,
+              "support": 60.0
+            },
+            "accuracy": 0.0975,
+            "macro avg": {
+              "precision": 0.11788394142866514,
+              "recall": 0.12291666666666667,
+              "f1-score": 0.09747237233559974,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 0.15045621086015165,
+              "recall": 0.0975,
+              "f1-score": 0.09717371650428491,
+              "support": 400.0
+            }
+          }
+        },
+        "logistic_regression": {
+          "accuracy": 0.0875,
+          "macro_f1": 0.08160127281065337,
+          "classification_report": {
+            "Art": {
+              "precision": 0.14285714285714285,
+              "recall": 0.1,
+              "f1-score": 0.11764705882352941,
+              "support": 40.0
+            },
+            "Biology": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1-score": 0.0,
+              "support": 80.0
+            },
+            "Culture": {
+              "precision": 0.07142857142857142,
+              "recall": 0.05,
+              "f1-score": 0.058823529411764705,
+              "support": 40.0
+            },
+            "Economics": {
+              "precision": 0.07142857142857142,
+              "recall": 0.25,
+              "f1-score": 0.1111111111111111,
+              "support": 20.0
+            },
+            "History": {
+              "precision": 0.25,
+              "recall": 0.03333333333333333,
+              "f1-score": 0.058823529411764705,
+              "support": 60.0
+            },
+            "Mathematics": {
+              "precision": 0.02702702702702703,
+              "recall": 0.05,
+              "f1-score": 0.03508771929824561,
+              "support": 20.0
+            },
+            "Physics": {
+              "precision": 0.06542056074766354,
+              "recall": 0.35,
+              "f1-score": 0.11023622047244094,
+              "support": 20.0
+            },
+            "Psychology": {
+              "precision": 0.14285714285714285,
+              "recall": 0.2,
+              "f1-score": 0.16666666666666666,
+              "support": 40.0
+            },
+            "Sports": {
+              "precision": 0.08620689655172414,
+              "recall": 0.25,
+              "f1-score": 0.1282051282051282,
+              "support": 20.0
+            },
+            "Technology": {
+              "precision": 0.125,
+              "recall": 0.016666666666666666,
+              "f1-score": 0.029411764705882353,
+              "support": 60.0
+            },
+            "accuracy": 0.0875,
+            "macro avg": {
+              "precision": 0.09822259128978432,
+              "recall": 0.13,
+              "f1-score": 0.08160127281065337,
+              "support": 400.0
+            },
+            "weighted avg": {
+              "precision": 0.10446843850203502,
+              "recall": 0.0875,
+              "f1-score": 0.06678102856218943,
+              "support": 400.0
+            }
+          }
+        }
+      }
+    }
+  }
+}
