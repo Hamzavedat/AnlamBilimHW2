@@ -1,0 +1,15 @@
+venv/
+runs/
+teslim_paketi/
+__pycache__/
+*.pyc
+.DS_Store
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.log
+*.aux
+*.nav
+*.out
+*.snm
+*.toc
