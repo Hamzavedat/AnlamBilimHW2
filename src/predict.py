@@ -83,46 +83,47 @@ def main():
     df = pd.read_csv(FEATURES_PATH)
     print(f"Loaded {len(df)} trajectories.")
 
-    raw_features = [col for col in df.columns if col.startswith("raw_geo_")]
-    normalized_features = [col for col in df.columns if col.startswith("norm_geo_") or col.startswith("si_")]
-
-    X_raw = df[raw_features]
-    X_norm = df[normalized_features]
+    feature_sets = {
+        "human_raw_geometry": [col for col in df.columns if col.startswith("raw_geo_")],
+        "human_normalized_geometry": [
+            col for col in df.columns if col.startswith("norm_geo_") or col.startswith("si_")
+        ],
+        "ai_pca_projection": [col for col in df.columns if col.startswith("within_model_pca_")],
+    }
+    feature_sets["ai_combined_geometry"] = (
+        feature_sets["human_normalized_geometry"] + feature_sets["ai_pca_projection"]
+    )
 
     y_model = df["model_name"]
-    X_train_raw, X_test_raw, y_train_model, y_test_model = train_test_split(
-        X_raw,
-        y_model,
-        test_size=TEST_SIZE,
-        random_state=SEED,
-        stratify=y_model,
-    )
-    X_train_norm, X_test_norm, _, _ = train_test_split(
-        X_norm,
-        y_model,
-        test_size=TEST_SIZE,
-        random_state=SEED,
-        stratify=y_model,
-    )
-
-    model_raw_results = evaluate_models(X_train_raw, X_test_raw, y_train_model, y_test_model)
-    model_norm_results = evaluate_models(X_train_norm, X_test_norm, y_train_model, y_test_model)
-
     group_col = "prompt_id"
     train_idx, test_idx = grouped_split_with_class_coverage(df, group_col)
 
-    category_raw_results = evaluate_models(
-        X_raw.iloc[train_idx],
-        X_raw.iloc[test_idx],
-        df["category"].iloc[train_idx],
-        df["category"].iloc[test_idx],
-    )
-    category_norm_results = evaluate_models(
-        X_norm.iloc[train_idx],
-        X_norm.iloc[test_idx],
-        df["category"].iloc[train_idx],
-        df["category"].iloc[test_idx],
-    )
+    model_identity_results = {}
+    category_results = {}
+
+    for feature_set_name, feature_cols in feature_sets.items():
+        X = df[feature_cols]
+
+        X_train, X_test, y_train_model, y_test_model = train_test_split(
+            X,
+            y_model,
+            test_size=TEST_SIZE,
+            random_state=SEED,
+            stratify=y_model,
+        )
+        model_identity_results[feature_set_name] = evaluate_models(
+            X_train,
+            X_test,
+            y_train_model,
+            y_test_model,
+        )
+
+        category_results[feature_set_name] = evaluate_models(
+            X.iloc[train_idx],
+            X.iloc[test_idx],
+            df["category"].iloc[train_idx],
+            df["category"].iloc[test_idx],
+        )
 
     metrics = {
         "run": {
@@ -132,16 +133,22 @@ def main():
             "features_path": os.path.abspath(FEATURES_PATH),
             "num_rows": int(len(df)),
         },
+        "feature_sets": {
+            name: {
+                "source": "human" if name.startswith("human_") else "ai_assisted",
+                "num_features": len(cols),
+                "columns": cols,
+            }
+            for name, cols in feature_sets.items()
+        },
         "task_model_identity": {
             "split": "stratified train_test_split",
-            "raw_features": model_raw_results,
-            "normalized_features": model_norm_results,
+            "results": model_identity_results,
         },
         "task_category_prediction_grouped": {
             "split": "GroupShuffleSplit by prompt_id",
             "coverage_satisfied": True,
-            "raw_features": category_raw_results,
-            "normalized_features": category_norm_results,
+            "results": category_results,
         },
     }
 
@@ -154,19 +161,43 @@ def main():
         "",
         f"- Rows: {len(df)}",
         "",
-        "## Model Identity",
-        f"- Raw RF accuracy: {model_raw_results['random_forest']['accuracy']:.4f}",
-        f"- Raw LR accuracy: {model_raw_results['logistic_regression']['accuracy']:.4f}",
-        f"- Normalized RF accuracy: {model_norm_results['random_forest']['accuracy']:.4f}",
-        f"- Normalized LR accuracy: {model_norm_results['logistic_regression']['accuracy']:.4f}",
+        "## Four Trajectory Inferences",
+        "- Human 1: raw geometric features",
+        "- Human 2: normalized and scale-invariant geometric features",
+        "- AI-assisted 1: within-model PCA projection features",
+        "- AI-assisted 2: combined normalized geometry + PCA projection features",
         "",
-        "## Category Prediction (Grouped)",
-        f"- Raw RF accuracy: {category_raw_results['random_forest']['accuracy']:.4f}",
-        f"- Raw LR accuracy: {category_raw_results['logistic_regression']['accuracy']:.4f}",
-        f"- Normalized RF accuracy: {category_norm_results['random_forest']['accuracy']:.4f}",
-        f"- Normalized LR accuracy: {category_norm_results['logistic_regression']['accuracy']:.4f}",
-        "- Coverage satisfied: True",
+        "## Model Identity",
     ]
+
+    for feature_set_name, results in model_identity_results.items():
+        report_lines.extend(
+            [
+                f"- {feature_set_name} RF accuracy: {results['random_forest']['accuracy']:.4f}",
+                f"- {feature_set_name} LR accuracy: {results['logistic_regression']['accuracy']:.4f}",
+            ]
+        )
+
+    report_lines.extend(
+        [
+            "",
+            "## Category Prediction (Grouped)",
+        ]
+    )
+
+    for feature_set_name, results in category_results.items():
+        report_lines.extend(
+            [
+                f"- {feature_set_name} RF accuracy: {results['random_forest']['accuracy']:.4f}",
+                f"- {feature_set_name} LR accuracy: {results['logistic_regression']['accuracy']:.4f}",
+            ]
+        )
+
+    report_lines.extend(
+        [
+            "- Coverage satisfied: True",
+        ]
+    )
 
     report_path = os.path.join(RESULTS_DIR, "report.md")
     with open(report_path, "w", encoding="utf-8") as f:

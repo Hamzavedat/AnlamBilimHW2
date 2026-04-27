@@ -93,7 +93,7 @@
     \item Model token token uretim yapti.
     \item Her adimda son-layer son-token hidden state kaydedildi.
     \item Her ornek icin bir trajectory dosyasi olustu.
-    \item Trajectory'lerden geometric ve normalized/scale-invariant feature'lar cikarildi.
+    \item Trajectory'lerden 4 farkli cikarim/feature ailesi uretildi.
     \item Siniflandirma deneyleri calistirildi.
     \item Sonuclar raporlandi ve gorsellestirildi.
   \end{enumerate}
@@ -128,20 +128,41 @@
 \end{frame}
 
 \begin{frame}{Feature Sets}
-  \begin{block}{Kullanilan feature aileleri}
+  \begin{block}{Benim tasarladigim iki cikarim}
     \begin{itemize}
-      \item \textbf{Raw geometric}: adimlar arasi mesafe, yol uzunlugu, linearity
-      \item \textbf{Normalized geometric}: olcek etkisini azaltan geometric ozetler
-      \item \textbf{Scale-invariant}: goreli degisim ve donus davranisini ozetleyen feature'lar
+      \item \textbf{Raw geometry}: adimlar arasi mesafe, yol uzunlugu, baslangic-bitis uzakligi, linearity
+      \item \textbf{Normalized geometry}: olcek etkisini azaltan mesafe, aci ve donus davranisi
     \end{itemize}
   \end{block}
 
-  \vspace{0.5em}
-  \begin{itemize}
-    \item Raw sonuclar sadece baseline olarak kullanildi.
-    \item Ana yorum normalized + scale-invariant feature'lar uzerinden yapildi.
-    \item Category prediction icin grouped split coverage kontrolu eklendi.
-  \end{itemize}
+  \begin{block}{YZ onerisiyle eklenen iki cikarim}
+    \begin{itemize}
+      \item \textbf{PCA projection}: trajectory'nin 2 boyuttaki alan, yayilim ve linearity ozeti
+      \item \textbf{Combined geometry}: normalized geometry ile PCA ozelliklerinin birlikte kullanimi
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\begin{frame}{Benim Cozumum ve YZ Cozumu}
+  \begin{columns}[T]
+    \column{0.48\textwidth}
+    \begin{block}{Benim yaklasimim}
+      \begin{itemize}
+        \item Yorungeyi yuksek boyutlu bir yol gibi ele aldim.
+        \item Mesafe, aci, yol uzunlugu ve duzluk gibi geometrik ozetler kullandim.
+        \item Amac: modelin ic hareketi model kimligi tasiyor mu?
+      \end{itemize}
+    \end{block}
+
+    \column{0.48\textwidth}
+    \begin{block}{YZ'nin onerisi}
+      \begin{itemize}
+        \item 2B PCA izdususumlerinden ek ozellik cikar.
+        \item Gorsel ayrismayi sadece sekil olarak degil, sayisal feature olarak kullan.
+        \item Farkli feature ailelerini birlikte dene.
+      \end{itemize}
+    \end{block}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Gorsellestirme 1: Model Bazli Trajectory Panelleri}
@@ -161,17 +182,17 @@
 \end{frame}
 
 \begin{frame}{Sayisal Sonuclar}
-  \small
+  \scriptsize
   \begin{table}
     \centering
-    \begin{tabular}{>{\raggedright\arraybackslash}p{4.3cm}cc}
+    \begin{tabular}{>{\raggedright\arraybackslash}p{4.0cm}cc}
       \toprule
-      Gorev ve setting & Random Forest & Logistic Regression \\
+      Feature set & Model RF/LR & Category RF/LR \\
       \midrule
-      Model identity (raw) & 1.0000 & 1.0000 \\
-      Model identity (normalized main) & \textbf{0.9975} & \textbf{1.0000} \\
-      Category (grouped, raw) & 0.2405 & 0.2095 \\
-      Category (grouped, normalized main) & \textbf{0.2143} & \textbf{0.2071} \\
+      Human 1: raw geometry & 1.0000 / 0.9975 & 0.2667 / 0.1786 \\
+      Human 2: normalized geometry & 0.9950 / 0.9975 & 0.2381 / 0.1857 \\
+      AI 1: PCA projection & \textbf{1.0000 / 1.0000} & 0.2048 / 0.1595 \\
+      AI 2: combined geometry & 1.0000 / 0.9975 & 0.2476 / 0.1762 \\
       \bottomrule
     \end{tabular}
   \end{table}
@@ -184,16 +205,29 @@
 
 \begin{frame}{Yorum}
   \begin{itemize}
-    \item Model identity sonucu neredeyse kusursuz: trajectory'ler model bazli guclu bir imza tasiyor.
-    \item Category sonucu dusuk: mevcut feature set ile kategori bilgisi belirgin sekilde ayrismiyor.
-    \item 5 kategori oldugu icin category task'ta sonuc neredeyse sans seviyesine yakin.
-    \item Bu, trajectory'lerin once model dinamikleri tarafindan sekillendigini dusundurebilir.
+    \item 4 cikarimin hepsi model identity gorevinde cok yuksek sonuc verdi.
+    \item Bu, trajectory'nin model mimarisi ve model dinamigi hakkinda guclu iz tasidigini gosteriyor.
+    \item Category prediction dusuk kaldi; 5 sinifli gorevde sonuclar sans seviyesine yakin.
+    \item YZ'nin PCA onerisi model ayrimini guclendirdi, ama kategori bilgisini belirgin artirmadi.
   \end{itemize}
 
   \vspace{0.5em}
   \begin{block}{Kisa yorum}
-    Modelin \textbf{hangi model oldugu} trajectory'den cok iyi anlasiliyor; ancak
-    \textbf{hangi konu kategorisinden geldigi} ayni gucle anlasilmiyor.
+    Trajectory daha cok \textbf{model imzasi} tasiyor; prompt kategorisi icin ayni feature'lar yeterince ayirt edici degil.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Benim Cozumum vs YZ Onerisi}
+  \begin{itemize}
+    \item Benim raw ve normalized feature'larim model kimligini zaten cok basarili ayirdi.
+    \item YZ'nin PCA projection onerisi model identity icin en temiz sonucu verdi: RF ve LR ikisi de 1.0000.
+    \item YZ'nin combined geometry onerisi kategori tahminini kokten cozmedi.
+    \item Bu nedenle YZ katkisi en cok \textbf{yorumlama ve alternatif feature tasarimi} tarafinda faydali oldu.
+  \end{itemize}
+
+  \vspace{0.5em}
+  \begin{block}{Ders cikarimi}
+    Tek bir gorsel ayrisma guzel gorunse bile, bunu tahmin gorevleriyle test etmek gerekiyor.
   \end{block}
 \end{frame}
 
@@ -230,9 +264,10 @@
 
   \vspace{0.5em}
   \begin{itemize}
+    \item 2 insan tasarimi ve 2 YZ destekli olmak uzere 4 cikarim denendi.
     \item Trajectory'ler model farkini guclu sekilde tasiyor.
-    \item Ayni feature'lar kategori bilgisini guclu tasimiyor.
-    \item Yani bu calisma daha cok \textbf{model behavior analysis} olarak okunmali.
+    \item Kategori bilgisi ayni gucle ayrismiyor.
+    \item Yani calisma daha cok \textbf{model behavior analysis} olarak okunmali.
   \end{itemize}
 
   \vspace{0.8em}

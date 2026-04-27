@@ -223,11 +223,12 @@ def check_reproducibility(model, tokenizer, plan, device):
 
 def collect_for_model(model_name, plan, device):
     print(f"Loading {model_name}...")
-    tokenizer = AutoTokenizer.from_pretrained(model_name, local_files_only=True)
+    local_files_only = os.environ.get("HF_HUB_OFFLINE") == "1"
+    tokenizer = AutoTokenizer.from_pretrained(model_name, local_files_only=local_files_only)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
-    model = AutoModelForCausalLM.from_pretrained(model_name, local_files_only=True)
+    model = AutoModelForCausalLM.from_pretrained(model_name, local_files_only=local_files_only)
     model.to(device)
     model.eval()
 

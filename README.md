@@ -19,14 +19,21 @@ Bu proje, iki dil modelinin metin uretimi sirasinda olusan trajectory'lerini kar
 
 ## Calistirma
 
+Gerekli paketleri kurmak icin:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
 Tum pipeline'i bastan sona calistirmak icin:
 
 ```bash
-bash run_all.sh
+python src/run_all.py
 ```
 
 Not:
-- Script offline calisacak sekilde ayarlanmistir.
+- Ilk calistirmada modeller Hugging Face uzerinden indirilebilir.
+- Modeller cache'te varsa offline calistirmak icin `HF_HUB_OFFLINE=1` ayarlanabilir.
 - Bu ortamda build CPU uzerinden calistigi icin uzun surebilir.
 
 ## Beklenen ciktilar
